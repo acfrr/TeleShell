@@ -356,6 +356,17 @@ source "$ENV_FILE"
 
 [ "${PAM_TYPE:-}" = "open_session" ] || exit 0
 
+# 防抖：sshd 会触发两次 PAM session，10 秒内同一用户不重复通知
+THROTTLE_FILE="/tmp/.ssh-alert-throttle-${PAM_USER:-unknown}"
+NOW_TS="$(date +%s)"
+if [ -f "$THROTTLE_FILE" ]; then
+  LAST_TS="$(cat "$THROTTLE_FILE" 2>/dev/null || echo 0)"
+  if [ $((NOW_TS - LAST_TS)) -lt 10 ]; then
+    exit 0
+  fi
+fi
+echo "$NOW_TS" > "$THROTTLE_FILE"
+
 USER_NAME="${PAM_USER:-unknown}"
 REMOTE_HOST="${PAM_RHOST:-unknown}"
 TTY_NAME="${PAM_TTY:-unknown}"
