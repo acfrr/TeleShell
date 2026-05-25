@@ -261,20 +261,7 @@ if [ -z "$TG_CHAT_ID" ]; then
 fi
 
 # --- 服务器公网 IP ---
-CURRENT_DEFAULT="$DEFAULT_SERVER_PUBLIC_IP"
-if [ -n "${SERVER_PUBLIC_IP:-}" ]; then
-  CURRENT_DEFAULT="$SERVER_PUBLIC_IP"
-fi
-if [ -n "$CURRENT_DEFAULT" ]; then
-  read -rp "服务器公网 IP [回车使用已有 ${CURRENT_DEFAULT}, 输入 auto 重新检测]: " INPUT_IP
-  if [ "${INPUT_IP}" = "auto" ]; then
-    SERVER_PUBLIC_IP=""
-  else
-    SERVER_PUBLIC_IP="${INPUT_IP:-$CURRENT_DEFAULT}"
-  fi
-else
-  read -rp "服务器公网 IP [回车自动检测]: " SERVER_PUBLIC_IP
-fi
+read -rp "服务器公网 IP [回车自动检测]: " SERVER_PUBLIC_IP
 
 if [ -n "$SERVER_PUBLIC_IP" ]; then
   if ! [[ "$SERVER_PUBLIC_IP" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
