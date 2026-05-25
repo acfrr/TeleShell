@@ -356,6 +356,12 @@ source "$ENV_FILE"
 
 [ "${PAM_TYPE:-}" = "open_session" ] || exit 0
 
+# 只通知交互式终端登录，跳过 Xterminal 监控 / SCP / SFTP 等无终端连接
+case "${PAM_TTY:-}" in
+  /dev/pts/*|/dev/tty*) ;;
+  *) exit 0 ;;
+esac
+
 # 防抖：sshd 会触发两次 PAM session，10 秒内同一用户不重复通知
 THROTTLE_FILE="/tmp/.ssh-alert-throttle-${PAM_USER:-unknown}"
 NOW_TS="$(date +%s)"
