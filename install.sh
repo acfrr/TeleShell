@@ -209,6 +209,15 @@ fi
 
 title "SSH 登录 Telegram 通知安装脚本"
 
+# ===== 检测已有配置（二次安装自动带入）=====
+if [ -f "$ENV_FILE" ]; then
+  source "$ENV_FILE" 2>/dev/null || true
+  if [ -n "${TG_BOT_TOKEN:-}" ] || [ -n "${SERVER_NAME:-}" ]; then
+    ok "检测到已有配置，回车使用已有值，输入新值覆盖"
+    echo
+  fi
+fi
+
 # ===== 收集用户输入 =====
 
 # --- Telegram Bot Token ---
@@ -257,8 +266,12 @@ if [ -n "${SERVER_PUBLIC_IP:-}" ]; then
   CURRENT_DEFAULT="$SERVER_PUBLIC_IP"
 fi
 if [ -n "$CURRENT_DEFAULT" ]; then
-  read -rp "服务器公网 IP [回车使用默认 ${CURRENT_DEFAULT}]: " INPUT_IP
-  SERVER_PUBLIC_IP="${INPUT_IP:-$CURRENT_DEFAULT}"
+  read -rp "服务器公网 IP [回车使用已有 ${CURRENT_DEFAULT}, 输入 auto 重新检测]: " INPUT_IP
+  if [ "${INPUT_IP}" = "auto" ]; then
+    SERVER_PUBLIC_IP=""
+  else
+    SERVER_PUBLIC_IP="${INPUT_IP:-$CURRENT_DEFAULT}"
+  fi
 else
   read -rp "服务器公网 IP [回车自动检测]: " SERVER_PUBLIC_IP
 fi
